@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import csv
 import os
 import time
+import re
 
 # Class gsmarena scrap the website phones models and its devices and save to csv file individually.
 class Gsmarena():
@@ -10,7 +11,7 @@ class Gsmarena():
     # Constructor to initialize common useful varibales throughout the program.
     def __init__(self):
         self.phones = []
-        self.features = ["Brand", "Model Name", "Model Image"]
+        self.features = ["Brand", "Model Name", "Model Image", "Spec Versions"]
         self.temp1 = []
         self.phones_brands = []
         self.url = 'https://www.gsmarena.com/' # GSMArena website url
@@ -72,12 +73,15 @@ class Gsmarena():
     def crawl_phones_models_specification(self, link, phone_brand):
         phone_data = {}
         soup = self.crawl_html_page(link)
+
+        version = re.findall("var SPEC_VERSIONS = (?s).*\]\]\;", str(soup))
         model_name = soup.find(class_='specs-phone-name-title').text
         model_img_html = soup.find(class_='specs-photo-main')
         model_img = model_img_html.find('img')['src']
         phone_data.update({"Brand": phone_brand})
         phone_data.update({"Model Name": model_name})
         phone_data.update({"Model Image": model_img})
+        phone_data.update({"Spec Versions": version})
         temp = []
         for data1 in range(len(soup.findAll('table'))):
             table = soup.findAll('table')[data1]
@@ -143,7 +147,7 @@ i = 1
 while i == 1:
     if __name__ == "__main__":
         obj = Gsmarena()
-        try:
-            obj.save_specification_to_file()
-        except KeyboardInterrupt:
-            print("File has been stopped due to KeyBoard Interruption.")
+        # try:
+        obj.save_specification_to_file()
+        # except KeyboardInterrupt:
+            # print("File has been stopped due to KeyBoard Interruption.")
